@@ -1,0 +1,89 @@
+/* Garante altura total e layout em coluna */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Permite que o conteúdo cresça e empurre o rodapé */
+main {
+    flex-grow: 1;
+}
+
+/* Ajuste visual dos botões */
+button {
+    background-color: #a3a3a3;
+    cursor: pointer;
+    color: #fff;
+}
+button:hover {
+    background-color: #dbdbdb;
+}
+
+/* Estilo do topo fixo */
+.topo {
+    width: 100%;
+    background-color: #f8f8f8;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1030;
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Espaçamento do conteúdo abaixo do topo fixo */
+.main {
+    padding-top: 80px;
+}
+
+/* Estilos diversos */
+.logo {
+    width: 50px;
+    float: left;
+    margin-left: 40px;
+}
+
+.titulo-pagina,
+.conteudo-pagina {
+    padding: 100px 0px 60px 0px;
+    text-align: center;
+}
+
+/* Rodapé antigo (remover altura fixa) */
+.area-contato {
+    width: 100%;
+    border-top: solid 1px #ccc;
+    text-align: center;
+    background-color: #f8f8f8;
+    padding: 20px 0;
+    height: auto !important; /* Corrige altura fixa */
+}
+
+.area-contato span {
+    color: #333333;
+}
+
+.navbar {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-size: 100% 100%;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+}
