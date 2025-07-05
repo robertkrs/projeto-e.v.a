@@ -9,6 +9,13 @@ class LoginController extends Controller
 {
     public function index()
     {
+        /** @var User $user */
+        $user     = User::findByEmail(session('email'));
+
+        if(!empty($user)){
+            return redirect()->route('painel.home');
+        } 
+
         return view('site.login');
     }
 
@@ -60,7 +67,7 @@ class LoginController extends Controller
         $request->session()->put('tipo', $user->tipo);
 
         session()->flash($erro, $mensagem);
-        return redirect()->to('/painel/home');
+        return redirect()->route('painel.home');
     }
 
     public function logout(Request $request)

@@ -12,19 +12,24 @@ class HomeController extends Controller
     {
         /** @var User $user */
         $user     = User::findByEmail(session('email'));
-
+        
         if(empty($user)){
-            $erro     = 'error';
-            $mensagem = 'Usuário não encontrado!';
-
-            session()->flash($erro, $mensagem);
             return redirect()->to('/');
         } 
 
         if($user->tipo != User::COOPERATIVA){
-            $estabelecimentos = Estabelecimento::query()->get();
+            $estabelecimentos = Estabelecimento::query()
+                ->get()
+                ->groupBy(function ($estabelecimento) {
+                    return 'Cooperativa: '.$estabelecimento->user->name ?? 'Cooperativa Desconhecida';
+                });;
         }else{
-            $estabelecimentos = Estabelecimento::query()->where('usuario_id', $user->id)->get();
+            $estabelecimentos = Estabelecimento::with('produtos', 'user')
+                ->where('usuario_id', $user->id)
+                ->get()
+                ->groupBy(function ($estabelecimento) {
+                    return 'Cooperativa: '.$estabelecimento->user->name ?? 'Cooperativa Desconhecida';
+                });
         }
 
         return view('painel.home', compact('estabelecimentos','user'));

@@ -24,13 +24,13 @@ class ProdutoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::PRODUTOR){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         return view('painel.produto.index', compact('categorias', 'produto'));
@@ -47,16 +47,16 @@ class ProdutoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::PRODUTOR){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
-        $produtos = Produto::select(['id', 'nome', 'categoria', 'preco', 'estoque', 'foto']);
+        $produtos = Produto::select(['id', 'nome', 'categoria', 'preco', 'estoque', 'foto'])->where('produtos.usuario_id',$user->id);
 
         if($categoria){
             $produtos->where('produtos.categoria', $categoria);
@@ -70,15 +70,19 @@ class ProdutoController extends Controller
                 return '<span class="text-muted">Sem foto</span>';
             })
             ->addColumn('acoes', function ($produto) {
+                $exibir = route('produto.show', $produto->id);
                 $editar = route('produto.edit', $produto->id);
                 $excluir = route('produto.destroy', $produto->id);
                 return '
-                    <a href="' . $editar . '" class="editar-produto btn btn-sm btn-outline-primary me-1">
+                    <a href="' . $exibir . '" class="exibir-produto btn btn-sm btn-outline-primary me-1" title="Ver produto">
+                        <i class="fa fa-eye"></i>
+                    </a>
+                    <a href="' . $editar . '" class="editar-produto btn btn-sm btn-outline-primary me-1" title="Editar produto">
                         <i class="fa fa-pencil"></i>
                     </a>
                     <form action="' . $excluir . '" method="POST" style="display:inline-block" onsubmit="return confirm(\'Tem certeza que deseja excluir este produto?\')">
                         ' . csrf_field() . method_field('DELETE') . '
-                        <button class="btn btn-sm btn-outline-danger">
+                        <button class="btn btn-sm btn-outline-danger remover-produto" title="Remover produto">
                             <i class="fa fa-trash"></i>
                         </button>
                     </form>
@@ -111,38 +115,16 @@ class ProdutoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::PRODUTOR){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         return view('painel.produto.create');
-    }
-
-    public function show(Request $request, Produto $produto)
-    {
-        /** @var User $user */
-        $user = User::findByEmail(session('email'));
-
-        if(empty($user)){
-            $erro     = 'error';
-            $mensagem = 'Usuário não encontrado!';
-
-            session()->flash($erro, $mensagem);
-            return redirect()->to('/');
-        }else if($user->tipo != User::PRODUTOR){
-            $erro     = 'error';
-            $mensagem = 'Usuário não tem permissão!';
-
-            session()->flash($erro, $mensagem);
-            return redirect()->to('/');
-        }
-
-        return view('painel.produto.show', compact('produto'));
     }
 
     public function store(Request $request)
@@ -158,13 +140,13 @@ class ProdutoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::PRODUTOR){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         $arrData = $this->checkData($request);
@@ -194,6 +176,29 @@ class ProdutoController extends Controller
         return redirect()->back();
     }
 
+    public function show(Request $request, Produto $produto)
+    {
+        /** @var User $user */
+        $user = User::findByEmail(session('email'));
+        $ajax = $request->ajax();
+        
+        if(empty($user)){
+            $erro     = 'error';
+            $mensagem = 'Usuário não encontrado!';
+
+            session()->flash($erro, $mensagem);
+            return redirect()->route('painel.home');
+        }else if($user->tipo != User::PRODUTOR){
+            $erro     = 'error';
+            $mensagem = 'Usuário não tem permissão!';
+
+            session()->flash($erro, $mensagem);
+            return redirect()->route('painel.home');
+        }
+
+        return view('painel.produto.show', compact('produto','ajax'));
+    }
+
     public function edit(Request $request, Produto $produto)
     {
         /** @var User $user */
@@ -204,13 +209,13 @@ class ProdutoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::PRODUTOR){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         if ($request->ajax()) {
@@ -222,7 +227,7 @@ class ProdutoController extends Controller
         return view('painel.produto.edit', compact('produto'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Produto $produto)
     {
         /** @var User $user */
         $user     = User::findByEmail(session('email'));
@@ -234,16 +239,14 @@ class ProdutoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::PRODUTOR){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
-
-        $produto = Produto::where('usuario_id', $user->id)->findOrFail($id);
 
         $arrData = $this->checkData($request);
 
@@ -286,7 +289,7 @@ class ProdutoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         if ($produto->foto) {

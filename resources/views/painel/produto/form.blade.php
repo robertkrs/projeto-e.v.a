@@ -1,6 +1,5 @@
-<div class="container py-5">
-    <h2 class="mb-4">Cadastrar Novo Produto</h2>
-    <form action="{{ route('produto.store') }}" id="produto-form" method="POST" enctype="multipart/form-data">
+<div class="container py-2">
+    <form action="{{ route('produto.store') }}" id="{{isset($ajax) ? 'produto-form' : 'produto-form-card'}}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="_method" value="{{ isset($method) ? $method : 'POST' }}" />
         <input type="hidden" name="id" id="id" value="">

@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\CarrinhoController;
 use App\Http\Controllers\EstabelecimentoController;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\HomeController;
@@ -14,11 +14,13 @@ Route::any('/login', [LoginController::class, 'login'])->name('site.login');
 Route::resource('user', UserController::class)->except('show','destroy','edit');
 
 Route::prefix('/painel')->group(function(){    
+    /**Home */
     Route::get('/home', [HomeController::class, 'index'])->name('painel.home');
     Route::get('/logout', [LoginController::class, 'logout'])->name('painel.logout');
     
-    /** */
-    Route::resource('agenda', AgendaController::class);
+    /**Carrinho */
+    Route::post('/carrinho/adicionar', [CarrinhoController::class, 'adicionar'])->name('carrinho.adicionar');
+    Route::resource('carrinho', CarrinhoController::class)->except('show','edit','update');
 
     /**Produto */
     Route::get('/produto/datatable', [ProdutoController::class, 'datatable'])->name('produto.datatable');
@@ -32,6 +34,6 @@ Route::prefix('/painel')->group(function(){
     Route::resource('estabelecimento', EstabelecimentoController::class);
 });
 
-Route::fallback(function() {
-    echo 'A rota acessada não existe. <a href="'.route('painel.home').'">clique aqui</a> para ir para página inicial';
+Route::fallback(function () {
+    return redirect()->route('painel.home')->with('error', 'A página que você tentou acessar não existe.');
 });

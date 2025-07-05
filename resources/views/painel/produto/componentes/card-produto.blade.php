@@ -1,11 +1,10 @@
 <div class="card border rounded shadow-sm position-relative h-100">
-
     <div class="position-absolute top-0 end-0 m-2">
         <span class="badge bg-success">OFERTA</span>
     </div>
 
     <div class="position-absolute top-0 start-0 m-2">
-        <span class="badge bg-danger">{{$produto->categoria}}</span>
+        <span class="badge bg-danger">{{ $produto->categoria }}</span>
     </div>
 
     @if ($produto->foto)
@@ -28,10 +27,18 @@
                 <button type="button" class="btn btn-outline-secondary btn-sm menos">-</button>
                 <input type="number" name="quantidade" class="form-control form-control-sm text-center" value="1" min="1" max="{{ $produto->estoque }}" style="width: 50px;">
                 <button type="button" class="btn btn-outline-secondary btn-sm mais">+</button>
-                <button type="submit" class="btn btn-dark btn-sm"><i class="fa fa-cart-plus"></i></button>
+                <button type="button"
+                    class="btn btn-dark btn-sm adicionar-carrinho"
+                    data-id="{{ $produto->id }}"
+                    data-nome="{{ $produto->nome }}"
+                    data-preco="{{ $produto->preco }}"
+                    data-estoque="{{ $produto->estoque }}">
+                <i class="fa fa-cart-plus"></i>
+            </button>
+
             </form>
         @elseif (session('tipo') === 'Produtor')
-            <a href="{{ route('produto.edit', $produto->id) }}" class="editar-produto btn btn-outline-primary btn-sm mt-3">Editar</a>
+            <a href="#" data-id="{{ $produto->id }}" class="editar-produto btn btn-outline-primary btn-sm mt-3">Editar</a>
         @endif
     </div>
 </div>

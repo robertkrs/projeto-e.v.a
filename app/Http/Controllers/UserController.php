@@ -51,7 +51,7 @@ class UserController extends Controller
         }
         
         if($request->input('senha') != $request->input('outra-senha')){
-            $erro = 'error';
+            $erro = 'erro';
             $mensagem = 'As senhas devem ser iguais';
 
             session()->flash($erro, $mensagem);
@@ -63,20 +63,25 @@ class UserController extends Controller
         $user->password = md5($request->input('senha'));
         $user->telefone = preg_replace('/[^0-9]/','', $arrData['telefone']);
         
-        if(!$user->celular && !$user->email){
-            $erro = 'error';
+        $conflito = User::verificarDuplicidade($user);        
+        
+        if(isset($conflito)){
+            $erro = 'erro'; 
+            $mensagem = 'O campo ' .$conflito. ' já foi cadastrado!';
+        }elseif(!$user->celular && !$user->email){
+            $erro = 'erro';
             $mensagem = 'Informe o e-mail ou o celular para continuar.';
         }elseif(!$user->save()){
-            $erro = 'error';
+            $erro = 'erro';
             $mensagem = 'Aconteceu um erro ao salvar o usuário';
         }
 
         session()->flash($erro, $mensagem);
 
-        if($erro == 'error'){
-            return redirect()->to('/user');
+        if($erro == 'erro'){
+            return redirect()->route('user.index')->with('erro', $mensagem)->withInput();
         }
 
-        return redirect()->to('/');
+        return redirect()->route('site.login-index')->with('success', $mensagem);
     }
 }

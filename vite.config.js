@@ -7,6 +7,7 @@ export default defineConfig({
             input: [
                 'resources/js/app.js',
                 'resources/sass/app.scss', // ← esta linha precisa existir
+                'resources/js/painel/produto.js',
             ],
             refresh: true,
         }),

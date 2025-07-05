@@ -6,17 +6,13 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-
             <div class="card shadow rounded">
                 <div class="card-header text-center bg-success text-white">
                     <h4>Login</h4>
                 </div>
-
                 <div class="card-body">
                     <form action="{{ route('site.login') }}" method="POST" id="login-form">
                         @csrf
-
-                        {{-- Usuário --}}
                         <div class="mb-3">
                             <label for="usuario" class="form-label">Usuário</label>
                             <input 
@@ -32,8 +28,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        {{-- Senha --}}
                         <div class="mb-4">
                             <label for="senha" class="form-label">Senha</label>
                             <input 
@@ -48,20 +42,16 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        {{-- Botões --}}
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success">Acessar</button>
                             <a href="{{ route('user.index') }}" class="btn btn-outline-secondary">Cadastrar-se</a>
                         </div>
                     </form>
                 </div>
-
                 <div class="card-footer text-center small text-muted">
                     <span>Precisa de ajuda? Contato: (33) 98886-9730 | robertreis323@gmail.com</span>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

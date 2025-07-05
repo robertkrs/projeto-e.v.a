@@ -1,31 +1,61 @@
 @extends($ajax ? 'layouts.empty' : 'layouts.basico')
 
-@section('titulo', 'Gestão de Estabelecimento')
+@section('titulo', 'Ver Estabelecimento')
 
 @section('conteudo')
-    <div id="container-agenda">
-        <div class="titulo-pagina">
-            <h1>Agendamento</h1>
-        </div>
-            <div class="list-group" style="padding: 100px 400px">
-                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start ">
-                    <div class="d-flex w-100 justify-content-between" style="width:50%">
-                        <h5 class="mb-1">Titulo: <small>{{$model->titulo ? $model->titulo : '-'}}</small></h5>
-                        
-                    </div>
-                    <div class="form-group">
-                        <label>Data de inicio:</label>
-                        <small class="form-control-static">{{$model->data_inicio ? $model->data_inicio : '-'}}</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Data de fim:</label>
-                        <small class="form-control-static">{{$model->data_fim ? $model->data_fim : '-'}}</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Descrição:</label>
-                        <small class="form-control-static">{!! $model->descricao ? $model->descricao : '-' !!}</small>
-                    </div>
-                </a>
+<div class="container my-4">
+    <div class="card shadow rounded-4 border-0">
+        <div class="card-body p-4">
+
+            @if ($estabelecimento->foto_fachada)
+                <div class="text-center mb-4">
+                    <img src="{{ asset('storage/' . $estabelecimento->foto_fachada) }}" 
+                         alt="Foto da Fachada" 
+                         class="img-fluid rounded shadow-sm" 
+                         style="max-height: 300px;">
+                </div>
+            @endif
+
+            <h3 class="text-center fw-bold mb-4">{{ $estabelecimento->nome }}</h3>
+
+            <div class="mb-3">
+                <label class="form-label">Descrição:</label>
+                <div class="form-control-plaintext">{{ $estabelecimento->descricao ?? '-' }}</div>
             </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Endereço:</label>
+                    <div class="form-control-plaintext">
+                        {{ $estabelecimento->enderecoCompleto() }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Usuário Responsável:</label>
+                    <div class="form-control-plaintext">{{ $estabelecimento->user->name ?? 'Usuário não encontrado' }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Cadastrado em:</label>
+                    <div class="form-control-plaintext">
+                        {{ $estabelecimento->created_at ? $estabelecimento->created_at->format('d/m/Y H:i') : '-' }}
+                    </div>
+                </div>
+            </div>
+
+            {{-- BOTÃO VOLTAR --}}
+            @if (empty($ajax))
+                <div class="text-center mt-4">
+                    <a href="{{ route('estabelecimento.index') }}" class="btn btn-outline-secondary">
+                        <i class="fa fa-arrow-left me-1"></i> Voltar para Listagem
+                    </a>
+                </div>
+            @endif
+
+        </div>
     </div>
+</div>
 @endsection

@@ -1,1 +1,10 @@
-Rodar php artisan storage:link para imagens aparecerem
+* Rodar "php artisan storage:link" para imagens aparecerem
+
+O banco pode ser rodado pelo Laragon ou Xampp (utilizei laragon para o desenvolvimento)
+- Criar banco de dados "doctum_db"
+- Todas as tabelas ja estão no migration roda php artisan migrate, para desfazer php artisan migrate:rollback
+
+Como funciona o sistema você pode criar o usuário de 3 tipos Cooperativa, Produtor e Consumidor, cada um é diferente
+ - Produtor: Cria, edita e apaga os produtos e insere nos estabelecimentos, pode ver apenas os proprios itens
+ - Cooperativa: Cria, edita e apaga os estabelecimentos e pode ver todos os itens nos estabelecimentos
+ - Consumidor: Não pode criar nada, mas pode ver todos os estabelecimentos e seus itens e montar um carrinho de sua preferência 

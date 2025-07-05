@@ -3,10 +3,11 @@
 @section('titulo', 'Produtos')
 
 @section('conteudo')
-
+<input type="hidden" id="produtoRoutesBase" value="{{ route('produto.index') }}">
+<input type="hidden" id="produtoRoutesShow" value="{{ route('produto.show', ':id') }}">
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-center py-5">Produtos Disponíveis</h2>
+        <h2 class="text-center py-5">Produtos Disponíveis - {{$estabelecimento->nome}}</h2>
         <form method="GET" action="{{ route('estabelecimento.produtos', $estabelecimento->id) }}" class="row g-3 mb-4">
             <div class="col-md-6">
                 <input 
@@ -91,11 +92,11 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalProdutoLabel">Produto</h5>
+                    <h5 class="modal-title" id="modalProdutoLabel">Editar Produto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body" id="produtoModalBody">
-                        @include('painel.produto.form')
+                        @include('painel.produto.form', ['method' => 'PUT'])
                 </div>
                 </div>
             </div>
@@ -118,77 +119,3 @@
         </div>
     @endif
 @endsection
-
-@push('scripts')
-<script>
-    $(document).on('click', '.menos', function () {
-        ajustarQuantidade(this, -1);
-    });
-
-    $(document).on('click', '.mais', function () {
-        ajustarQuantidade(this, 1);
-    });
-
-    function ajustarQuantidade(btn, delta) {
-        const container = btn.closest('.quantidade-container');
-        const input = container.querySelector('input[name="quantidade"]');
-        const max = parseInt(input.getAttribute('max')) || 999;
-        let valor = parseInt(input.value) + delta;
-        if (valor < 1) valor = 1;
-        if (valor > max) valor = max;
-        input.value = valor;
-    }
-
-    $(document).on('click', '#adicionar-produto', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-
-        $('#modalAddProduto').modal('show');
-    });
-
-    $(document).on('click', '.editar-produto', function(e) {
-        var url = $(this).attr('href');
-        buscarProduto(url);
-
-        e.preventDefault();
-        e.stopPropagation();
-    });
-
-    function buscarProduto(url) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function (data) {
-                if (data.error) {
-                    showAlert(data['message'] || "Não foi possível salvar registro!", 'danger');
-                }else{
-                    showModal(data);
-                }
-            },
-        });
-    }
-
-    function showModal(data) {
-        data = data || {};
-        var $form = $('#produto-form');
-        var id = data['id'] || '';
-
-        var actionForm = '{{ route("produto.index") }}' + (id ? "/" + id : '');
-        var actionTitle = (id ? 'Editar' : 'Cadastrar');
-        data['_method'] = (id ? "PUT" : 'POST');
-
-        data['id']        = data['id'] || '';
-        data['nome']      = data['nome'] || '';
-        data['descricao'] = data['descricao'] || '';
-        data['categoria'] = data['categoria'] || '';
-        data['preco']     = data['preco'] || '';
-        data['estoque']   = data['estoque'] || '';
-
-        $form.attr('action', actionForm);
-        $form[0].reset();
-        $form.deserialize(data);
-
-        $('#modalProduto').modal('show');
-    }
-</script>
-@endpush

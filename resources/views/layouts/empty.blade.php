@@ -1,0 +1,2 @@
+@yield('conteudo')
+@stack('scripts')

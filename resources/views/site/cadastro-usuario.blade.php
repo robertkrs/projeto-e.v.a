@@ -6,19 +6,16 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-
             <div class="card shadow rounded">
                 <div class="card-header bg-success text-white text-center">
                     <h4>Cadastro de Usuário</h4>
                 </div>
-
                 <div class="card-body">
                     <form action="{{ route('user.store') }}" method="POST" id="form-usuario">
                         @csrf
                         <input type="hidden" name="_method" value="{{ isset($method) ? $method : 'POST' }}">
                         <input type="hidden" name="id" value="{{ $model->id ?? '' }}">
 
-                        {{-- Nome --}}
                         <div class="mb-3">
                             <label for="name" class="form-label">Nome</label>
                             <input type="text" name="name" id="name" 
@@ -29,8 +26,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        {{-- E-mail --}}
                         <div class="mb-3">
                             <label for="email" class="form-label">E-mail</label>
                             <input type="email" name="email" id="email"
@@ -42,8 +37,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        {{-- CPF e Telefone --}}
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="cpf" class="form-label">CPF</label>
@@ -66,21 +59,17 @@
                                 @enderror
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label for="tipo" class="form-label">Tipo de Usuário</label>
                                 <select name="tipo" id="tipo" class="form-control" data-placeholder="Selecione o tipo">
-                                    <option value=""></option> {{-- necessário para funcionar o "X" --}}
+                                    <option value=""></option>
                                 </select>
                                 @error('tipo')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
                         </div>
-
-                        {{-- Senhas --}}
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="senha" class="form-label">Senha</label>
@@ -101,19 +90,15 @@
                                 @enderror
                             </div>
                         </div>
-
-                        {{-- Botão --}}
                         <div class="text-center">
                             <button type="submit" class="btn btn-success w-50">Salvar</button>
                         </div>
                     </form>
                 </div>
-
                 <div class="card-footer text-muted text-center small">
                     Contato: (33) 98886-9730 | robertreis323@gmail.com
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -124,7 +109,6 @@
     $(document).ready(function () {
         const $form = $('#form-usuario');
 
-        // Máscaras
         $form.find('[name=cpf]').inputmask(['999.999.999-99', '99.999.999/9999-99']);
         $form.find('[name=telefone]').inputmask("(99) 9999-99999")
             .on('focusout', function (event) {
@@ -138,7 +122,6 @@
                 }
             });
 
-        // Inicialização do select2
         $('#tipo').select2({
             data: [
                 { id: '', text: 'Selecione o tipo' },
@@ -151,7 +134,6 @@
             width: '100%'
         });
 
-        // Seleciona valor antigo, se houver
         const valorAntigo = '{{ old("tipo", $model->tipo ?? "") }}';
         if (valorAntigo) {
             $('#tipo').val(valorAntigo).trigger('change');

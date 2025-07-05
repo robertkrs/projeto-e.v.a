@@ -3,6 +3,10 @@
 @section('titulo', 'Meus Produtos')
 
 @section('conteudo')
+<input type="hidden" id="produtoRoutesBase" value="{{ route('produto.index') }}">
+<input type="hidden" id="produtoRoutesDatatable" value="{{ route('produto.datatable') }}">
+<input type="hidden" id="produtoRoutesShow" value="{{ route('produto.show', ':id') }}">
+
 <div class="container py-5">
     <div class="row justify-content-center mb-4">
         <div class="col-md-3">
@@ -45,201 +49,27 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalProdutoLabel">Produto</h5>
+        <h5 class="modal-title" id="modalProdutoLabel">Cadastrar Produto</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
       <div class="modal-body" id="produtoModalBody">
-            @include('painel.produto.form')
+            @include('painel.produto.form', ['ajax' => true])
       </div>
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="modalProdutoShow" tabindex="-1" aria-labelledby="modalProdutoShowLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalProdutoShowLabel">Ver Produto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body" id="modalProdutoShowBody">
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
-@push('scripts')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            var $form = $('#produto-form');
-            
-            $('#produtos-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: { 
-                    url:'{{ route("produto.datatable") }}', 
-                    data: function (d) {
-                        d.search    = $('input[type="search"]').val();
-                        d.categoria = $('#filtro-categoria').val();
-                    }
-                },
-                columns: [
-                    { data: 'foto', name: 'foto', orderable: false, searchable: false },
-                    { data: 'nome', name: 'nome' },
-                    { data: 'categoria', name: 'categoria' },
-                    { data: 'preco', name: 'preco' },
-                    { data: 'estoque', name: 'estoque' },
-                    { data: 'acoes', name: 'acoes', orderable: false, searchable: false }
-                ],
-                dom: '<"row mb-3"<"col-md-6"l><"col-md-6"f>>' +
-                    '<"table-responsive"t>' +
-                    '<"row mt-3"<"col-md-6"i><"col-md-6"p>>',
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
-                }
-            });
-
-            $('#btn-filtrar').on('click', function () {
-                $('#produtos-table').DataTable().ajax.reload(null, false);
-            });
-
-            $(document).on('click', '.editar-produto', function(e) {
-                var data = getDataTableRowData($('#produtos-table').DataTable(), this)
-                buscarProduto(data['id']);
-
-                e.preventDefault();
-                e.stopPropagation();
-            });
-
-            $(document).on('click', '#novo-produto', function(e){
-                e.preventDefault();
-                e.stopPropagation();
-
-                showModal();
-            });
-
-            $(document).on('click', '.remover-estabelecimento', function(e){
-                var data = getDataTableRowData($('#estabelecimentos-table').DataTable(), this)
-
-                $.ajax({
-                headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{ route("produto.index") }}/' + data['id'],
-                type: 'POST',
-                data: {_method: 'DELETE'},
-                success: function (data) {
-                    if(data.error) {
-                        return false;
-                    }else{
-                        showAlert(data['message'] || "Remoção feita com sucesso!", 'success');
-                    }
-                }
-            })
-
-                e.preventDefault();
-                e.stopPropagation();
-            });
-
-            function buscarProduto(id) {
-                $.ajax({
-                    url: `{{ route("produto.index") }}/` + id + '/edit',
-                    type: 'GET',
-                    success: function (data) {
-                        if (data.error) {
-                            showAlert(data['message'] || "Não foi possível salvar registro!", 'danger');
-                        }else{
-                            showModal(data);
-                        }
-                    },
-                });
-            }
-
-            function showModal(data) {
-                data = data || {};
-                var $form = $('#produto-form');
-                var id = data['id'] || '';
-
-                var actionForm = '{{ route("produto.index") }}' + (id ? "/" + id : '');
-                var actionTitle = (id ? 'Editar' : 'Cadastrar');
-                data['_method'] = (id ? "PUT" : 'POST');
-
-                data['id']        = data['id'] || '';
-                data['nome']      = data['nome'] || '';
-                data['descricao'] = data['descricao'] || '';
-                data['categoria'] = data['categoria'] || '';
-                data['preco']     = data['preco'] || '';
-                data['estoque']   = data['estoque'] || '';
-
-                $form.attr('action', actionForm);
-                $form[0].reset();
-                $form.deserialize(data);
-
-                $('#modalProduto').modal('show');
-            }
-
-            function getDataTableRowData(datatable, child) {
-                var $parent = $(child).closest('tr');
-                var data = datatable.row($parent).data();
-
-                if (!data) {
-                    data = datatable.row(child).data();
-                }
-
-                if (!data) {
-                    data = datatable.fnGetData($parent);
-                }
-
-                if (!data) {
-                    data = datatable.fnGetData(child);
-                }
-
-                return data;
-            };
-
-            $form.on('submit', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Previne envio duplicado
-                if ($form.data('ajax')) return;
-
-                var data = new FormData(this);
-                var method = data.get('id') ? 'PUT' : 'POST';
-                console.log(method);
-                data.append('ajax', true);
-                data.append('_method', method)
-
-                $form.data('ajax', true); // Marca como processando
-
-                $.ajax({
-                    url: '{{ route("produto.index") }}' + (data.get('id') ? '/' + data.get('id') : ''),
-                    type: 'POST',
-                    contentType: false,
-                    processData: false,
-                    data: data,
-                    success: function (response) {
-                        if (response.error) {
-                            // showAlert(response.message || "Não foi possível salvar o registro!", 'danger');
-                        } else {
-                            $('#produtos-table').DataTable().ajax.reload(null, false);
-                            // showAlert(response.message || "Registro salvo com sucesso!", 'success');
-                            $('#modalProduto').modal('hide');
-                        }
-                    },
-                    error: function () {
-                        // showAlert("Erro ao enviar dados para o servidor!", 'danger');
-                    },
-                    complete: function () {
-                        $form.data('ajax', false); // Libera o form
-                    }
-                });
-            });
-
-            $.ajax({
-                headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{ route("produto.index") }}/' + id,
-                type: 'POST',
-                data: {_method: 'DELETE'},
-                success: function (data) {
-                    if(data.error) {
-                        return false;
-                    }else{
-                        window.location.reload(true);
-                    }
-                }
-            })
-        });
-    </script>
-@endpush

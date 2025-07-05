@@ -17,23 +17,22 @@ class EstabelecimentoController extends Controller
     {   
         /** @var User $user */
         $user = User::findByEmail(session('email'));
+        $produtos = [];
         
         if(empty($user)){
             $erro     = 'error';
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::COOPERATIVA){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
-        // $categorias = Estabelecimento::select('categoria')->distinct()->pluck('categoria');
-        $produtos = [];
         return view('painel.estabelecimento.index', compact('produtos'));
     }
 
@@ -47,13 +46,13 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::COOPERATIVA){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         $estabelecimentos = Estabelecimento::select('estabelecimento.*')
@@ -70,18 +69,27 @@ class EstabelecimentoController extends Controller
                 return $estabelecimento->produtos->count() ?? 0;
             })
             ->addColumn('acoes', function ($estabelecimento) {
-                $editar = route('estabelecimento.edit', $estabelecimento->id);
-                $excluir = route('estabelecimento.destroy', $estabelecimento->id);
+                $exibir   = route('estabelecimento.show', $estabelecimento->id);
+                $editar   = route('estabelecimento.edit', $estabelecimento->id);
+                $excluir  = route('estabelecimento.destroy', $estabelecimento->id);
+                $produtos = route('estabelecimento.produtos', [$estabelecimento->id]);
+
                 return '
-                    <a href="' . $editar . '" class="editar-estabelecimento btn btn-sm btn-outline-primary me-1">
+                    <a href="' . $exibir . '" class="exibir-estabelecimento btn btn-sm btn-outline-primary me-1" title="Ver estabelecimento">
+                        <i class="fa fa-eye"></i>
+                    </a>
+                    <a href="' . $editar . '" class="editar-estabelecimento btn btn-sm btn-outline-primary me-1" title="Editar estabelecimento">
                         <i class="fa fa-pencil"></i>
                     </a>
                     <form action="' . $excluir . '" method="POST" style="display:inline-block" onsubmit="return confirm(\'Tem certeza que deseja excluir este estabelecimento?\')">
                         ' . csrf_field() . method_field('DELETE') . '
-                        <button class="btn btn-sm btn-outline-danger remover-estabelecimento">
+                        <button class="btn btn-sm btn-outline-danger remover-estabelecimento me-1" title="Remover estabelecimento">
                             <i class="fa fa-trash"></i>
                         </button>
                     </form>
+                    <a href="' . $produtos . '" class="exibir-produtos btn btn-sm btn-outline-warning me-1" title="Ver produtos cadastrados">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </a>
                 ';
             })
             ->rawColumns(['foto_fachada', 'acoes'])
@@ -112,13 +120,13 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::COOPERATIVA){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
         
         return view('painel.estabelecimento.create');
@@ -128,22 +136,23 @@ class EstabelecimentoController extends Controller
     {
         /** @var User $user */
         $user = User::findByEmail(session('email'));
+        $ajax = $request->ajax();
 
         if(empty($user)){
             $erro     = 'error';
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::COOPERATIVA){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
-        return view('painel.estabelecimento.show', compact('estabelecimento'));
+        return view('painel.estabelecimento.show', compact('estabelecimento', 'ajax'));
     }
 
     public function store(Request $request)
@@ -159,13 +168,13 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::COOPERATIVA){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         $arrData = $this->checkData($request);
@@ -205,13 +214,13 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::COOPERATIVA){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         if ($request->ajax()) {
@@ -235,13 +244,13 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }else if($user->tipo != User::COOPERATIVA){
             $erro     = 'error';
             $mensagem = 'Usuário não tem permissão!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         $estabelecimento = Estabelecimento::where('usuario_id', $user->id)->findOrFail($id);
@@ -287,7 +296,7 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         if ($estabelecimento->foto_fachada) {
@@ -310,14 +319,14 @@ class EstabelecimentoController extends Controller
     public function painelEstabelecimento(Request $request)
     {
         /** @var User $user */
-        $user     = User::findByEmail(session('email'));
+        $user = User::findByEmail(session('email'));
 
         if(empty($user)){
             $erro     = 'error';
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         } 
 
         if($user->tipo != User::COOPERATIVA){
@@ -344,7 +353,7 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         } 
 
         if($user->tipo == User::PRODUTOR){
@@ -360,6 +369,7 @@ class EstabelecimentoController extends Controller
                 ->whereDoesntHave('estabelecimentos', function ($query) use ($estabelecimentoId) {
                     $query->where('estabelecimento.id', $estabelecimentoId);
                 })
+                ->select('produtos.*')
                 ->get();
 
         }else{
@@ -383,7 +393,7 @@ class EstabelecimentoController extends Controller
             });
         }
 
-       $produtos = $produtos->get();
+       $produtos = $produtos->select('produtos.*')->get();
 
         return view('painel.estabelecimento.produtos', compact('estabelecimento','produtos','user','prodSemEstabelecimento','categorias'));
     }
@@ -398,7 +408,7 @@ class EstabelecimentoController extends Controller
             $mensagem = 'Usuário não encontrado!';
 
             session()->flash($erro, $mensagem);
-            return redirect()->to('/');
+            return redirect()->route('painel.home');
         }
 
         $produtoId = $request->input('produto_id');

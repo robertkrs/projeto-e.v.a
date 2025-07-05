@@ -3,7 +3,7 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('painel.home') }}">
                 <img src="{{ asset('img/logo3.png') }}" alt="Logo" style="width: 40px;" class="me-2">
-                <span class="fw-bold text-dark" style="margin-left:5px;">Projeto E.V.A</span>
+                <span class="fw-bold text-dark" style="margin-left:5px;">Projeto E.V.A.</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"

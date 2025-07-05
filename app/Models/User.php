@@ -30,16 +30,39 @@ class User extends Authenticatable
         'password',
     ];
 
-    public function agenda()
-    {
-        return $this->hasMany(Agenda::class, 'user_id');
-    }
-
     public static function findByEmail($email)
     {
         $user = Self::where('email', $email)->first();
 
         return $user;
+    }
+
+    public static function verificaTelefoneEmailCPF($user)
+    {
+         return Self::query()->where(function ($q) use ($user) {
+            $q->where('telefone', $user->telefone)
+            ->orWhere('cpf', $user->cpf)
+            ->orWhere('email', $user->email);
+        });
+    }
+
+    public static function verificarDuplicidade($user)
+    {
+        $usuario = self::verificaTelefoneEmailCPF($user)->first();
+
+        if (!$usuario) return null;
+
+        $campoConflitante = null;
+
+        if ($usuario->telefone === $user->telefone) {
+            $campoConflitante = 'telefone';
+        } elseif ($usuario->cpf === $user->cpf) {
+            $campoConflitante = 'cpf';
+        } elseif ($usuario->email === $user->email) {
+            $campoConflitante = 'email';
+        }
+
+        return $campoConflitante;
     }
 
     public function toArray()
